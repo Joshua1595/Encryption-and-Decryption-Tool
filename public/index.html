@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encryption & Decryption Tool</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Encryption and Decryption Tool</h1>
+        <div class="sections">
+            <!-- Encryption Section -->
+            <div class="section">
+                <h2>Encryption</h2>
+                <label for="encryptInput">Message to Encrypt:</label>
+                <textarea id="encryptInput" rows="5" placeholder="Enter plain text..."></textarea>
+                <label for="encryptKey">Encryption Key:</label>
+                <input type="text" id="encryptKey" placeholder="Enter encryption key...">
+                <label for="mode">Mode:</label>
+                <select id="mode">
+                    <option value="ecb">ECB</option>
+                    <option value="cbc">CBC</option>
+                    <option value="ctr">CTR</option>
+                    <option value="cfb">CFB</option>
+                </select>
+                <button id="encryptButton">Encrypt</button>
+                <button id="copyEncryptButton">Copy Encryption</button>
+                <label for="encryptOutput">Encrypted Message:</label>
+                <textarea id="encryptOutput" rows="5" readonly></textarea>
+            </div>
+
+            <!-- Decryption Section -->
+            <div class="section">
+                <h2>Decryption</h2>
+                <label for="decryptInput">Message to Decrypt:</label>
+                <textarea id="decryptInput" rows="5" placeholder="Enter encrypted text..."></textarea>
+                <label for="decryptKey">Decryption Key:</label>
+                <input type="text" id="decryptKey" placeholder="Enter decryption key...">
+                <label for="decryptMode">Mode:</label>
+                <select id="decryptMode">
+                    <option value="ecb">ECB</option>
+                    <option value="cbc">CBC</option>
+                    <option value="ctr">CTR</option>
+                    <option value="cfb">CFB</option>
+                </select>
+                <button id="decryptButton">Decrypt</button>
+                <button id="copyDecryptButton">Copy Decryption</button>
+                <label for="decryptOutput">Decrypted Message:</label>
+                <textarea id="decryptOutput" rows="5" readonly></textarea>
+            </div>
+        </div>
+
+        <!-- Algorithm Selection -->
+        <div class="algorithm-section">
+            <label for="algorithm">Choose Algorithm:</label><br>
+            <select id="algorithm">
+                <option value="AES">AES</option>
+                <option value="3DES">3DES</option>
+                <option value="OTP">OTP</option>
+            </select>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
