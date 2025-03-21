@@ -1,19 +1,6 @@
 # **Encryption and Decryption Web Application**
 
-[![Latest Release][release-badge]][release-url]  
-[![Build Status][github-badge]][github-url]  
-[![Docker Pulls][docker-badge]][docker-url]  
 
-[![Quality Gate Status][sonarcloud-status-badge]][sonarcloud-url]  
-[![Security Rating][sonarcloud-security-badge]][sonarcloud-url]  
-[![Maintainability Rating][sonarcloud-maintainability-badge]][sonarcloud-url]  
-
-[![Bugs][sonarcloud-bugs-badge]][sonarcloud-url]  
-[![Code Smells][sonarcloud-codesmells-badge]][sonarcloud-url]  
-[![Coverage][sonarcloud-coverage-badge]][sonarcloud-url]  
-[![Duplicated Lines (%)][sonarcloud-duplicated-badge]][sonarcloud-url]  
-
----
 
 ## **Introduction**
 
