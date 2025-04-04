@@ -17,17 +17,21 @@ app.post('/encrypt', (req, res) => {
     try {
         if (algorithm === 'AES') {
             encrypted = aesEncrypt(text, key, mode);
+            res.json({ encrypted: encrypted.encrypted, iv: encrypted.iv });
         } else if (algorithm === '3DES') {
             encrypted = tripleDesEncrypt(text, key, mode);
+            res.json({ encrypted: encrypted.encrypted, iv: encrypted.iv });
         } else if (algorithm === 'OTP') {
             const randomKey = generateRandomKey(text.length);
             encrypted = otpEncrypt(text, randomKey);
-            res.json({ encrypted, key: randomKey }); // Send the generated key back to the front-end
-            return;
+            res.json({ encrypted, key: randomKey });
+        } else if (algorithm === 'RSA') {
+            const { publicKey, privateKey } = generateRSAKeys();
+            encrypted = rsaEncrypt(text, publicKey);
+            res.json({ encrypted, publicKey, privateKey });
         } else {
             throw new Error('Unsupported algorithm');
         }
-        res.json({ encrypted: encrypted.encrypted, iv: encrypted.iv }); // Return only the encrypted message and IV
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -38,8 +42,7 @@ app.post('/decrypt', (req, res) => {
     const { text, key, algorithm, mode, iv, encryptionMode } = req.body;
     let decrypted;
     try {
-        // Check if the decryption mode matches the encryption mode
-        if (mode !== encryptionMode) {
+        if (mode !== encryptionMode && algorithm !== 'RSA') {
             throw new Error('Decryption mode must match the encryption mode.');
         }
 
@@ -49,10 +52,12 @@ app.post('/decrypt', (req, res) => {
             decrypted = tripleDesDecrypt(text, key, mode, iv);
         } else if (algorithm === 'OTP') {
             decrypted = otpDecrypt(text, key);
+        } else if (algorithm === 'RSA') {
+            decrypted = rsaDecrypt(text, key);
         } else {
             throw new Error('Unsupported algorithm');
         }
-        res.json({ decrypted }); // Return only the decrypted message
+        res.json({ decrypted });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -61,11 +66,11 @@ app.post('/decrypt', (req, res) => {
 // AES encryption with modes
 function aesEncrypt(text, key, mode = 'ecb') {
     key = fixKeyLength(key, 16);
-    const iv = crypto.randomBytes(16); // Initialization vector for modes other than ECB
+    const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv(`aes-128-${mode}`, Buffer.from(key), mode === 'ecb' ? null : iv);
     let encrypted = cipher.update(text, 'utf8', 'base64');
     encrypted += cipher.final('base64');
-    return { encrypted, iv: mode === 'ecb' ? null : iv.toString('base64') }; // Return encrypted message and IV
+    return { encrypted, iv: mode === 'ecb' ? null : iv.toString('base64') };
 }
 
 // AES decryption with modes
@@ -74,17 +79,17 @@ function aesDecrypt(text, key, mode = 'ecb', iv = null) {
     const decipher = crypto.createDecipheriv(`aes-128-${mode}`, Buffer.from(key), mode === 'ecb' ? null : Buffer.from(iv, 'base64'));
     let decrypted = decipher.update(text, 'base64', 'utf8');
     decrypted += decipher.final('utf8');
-    return decrypted; // Return the decrypted message
+    return decrypted;
 }
 
 // 3DES encryption with modes
 function tripleDesEncrypt(text, key, mode = 'ecb') {
     key = fixKeyLength(key, 24);
-    const iv = crypto.randomBytes(8); // Initialization vector for modes other than ECB
+    const iv = crypto.randomBytes(8);
     const cipher = crypto.createCipheriv(`des-ede3-${mode}`, Buffer.from(key), mode === 'ecb' ? null : iv);
     let encrypted = cipher.update(text, 'utf8', 'base64');
     encrypted += cipher.final('base64');
-    return { encrypted, iv: mode === 'ecb' ? null : iv.toString('base64') }; // Return encrypted message and IV
+    return { encrypted, iv: mode === 'ecb' ? null : iv.toString('base64') };
 }
 
 // 3DES decryption with modes
@@ -93,7 +98,7 @@ function tripleDesDecrypt(text, key, mode = 'ecb', iv = null) {
     const decipher = crypto.createDecipheriv(`des-ede3-${mode}`, Buffer.from(key), mode === 'ecb' ? null : Buffer.from(iv, 'base64'));
     let decrypted = decipher.update(text, 'base64', 'utf8');
     decrypted += decipher.final('utf8');
-    return decrypted; // Return the decrypted message
+    return decrypted;
 }
 
 // OTP encryption
@@ -115,6 +120,52 @@ function otpDecrypt(text, key) {
         decrypted += String.fromCharCode(decodedText.charCodeAt(i) ^ key.charCodeAt(i));
     }
     return decrypted;
+}
+
+// RSA functions
+function generateRSAKeys() {
+    const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+        modulusLength: 2048,
+        publicKeyEncoding: {
+            type: 'spki',
+            format: 'pem'
+        },
+        privateKeyEncoding: {
+            type: 'pkcs8',
+            format: 'pem'
+        }
+    });
+    return { publicKey, privateKey };
+}
+
+function rsaEncrypt(text, publicKey) {
+    const buffer = Buffer.from(text, 'utf8');
+    const encrypted = crypto.publicEncrypt({
+        key: publicKey,
+        padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+        oaepHash: 'sha256'
+    }, buffer);
+    return encrypted.toString('base64');
+}
+
+function rsaDecrypt(text, privateKey) {
+    try {
+        // Ensure the private key is properly formatted
+        if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+            privateKey = `-----BEGIN PRIVATE KEY-----\n${privateKey}\n-----END PRIVATE KEY-----`;
+        }
+
+        const buffer = Buffer.from(text, 'base64');
+        const decrypted = crypto.privateDecrypt({
+            key: privateKey,
+            padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+            oaepHash: 'sha256'
+        }, buffer);
+        return decrypted.toString('utf8');
+    } catch (error) {
+        console.error('RSA Decryption Error:', error);
+        throw new Error('Failed to decrypt. Make sure you\'re using the correct private key.');
+    }
 }
 
 // Generate random key for OTP
