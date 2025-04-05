@@ -4,7 +4,7 @@
 
 ## **Introduction**
 
-This project is a web-based encryption and decryption tool built with **Node.js** and **Express** for the backend, and **HTML**, **CSS**, and **JavaScript** for the frontend. It supports multiple cryptographic algorithms (**AES**, **3DES**, **OTP**) and encryption modes (**ECB**, **CBC**, **CTR**, **CFB**). The application provides a user-friendly interface for encrypting and decrypting text securely.
+This project is a web-based encryption and decryption tool built with **Node.js** and **Express** for the backend, and **HTML**, **CSS**, and **JavaScript** for the frontend. It supports multiple cryptographic algorithms (**AES**, **3DES**, **OTP** and **RSA**) and encryption modes (**ECB**, **CBC**, **CTR**, **CFB**). The application provides a user-friendly interface for encrypting and decrypting text securely.
 
 > **Note**: This project is for educational purposes and is not intended for production use.
 
@@ -16,6 +16,7 @@ This project is a web-based encryption and decryption tool built with **Node.js*
   - AES (Advanced Encryption Standard)
   - 3DES (Triple Data Encryption Standard)
   - OTP (One-Time Pad)
+  - RSA(Rivest–Shamir–Adleman)
 - **Encryption Modes**:
   - ECB (Electronic Codebook)
   - CBC (Cipher Block Chaining)

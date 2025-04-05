@@ -15,11 +15,13 @@
                 <h2>Encryption</h2>
                 <label for="encryptInput">Message to Encrypt:</label>
                 <textarea id="encryptInput" rows="5" placeholder="Enter plain text..."></textarea>
+                
                 <label for="encryptKey">Encryption Key:</label>
-                <textarea id="encryptKey" rows="6" placeholder="Enter encryption key..."></textarea>
+                <textarea id="encryptKey" rows="4" placeholder="Enter encryption key..."></textarea>
                 <div class="key-buttons">
                     <button id="copyPublicKey">Copy Public Key</button>
                 </div>
+                
                 <label for="mode">Mode:</label>
                 <select id="mode">
                     <option value="ecb">ECB</option>
@@ -27,8 +29,10 @@
                     <option value="ctr">CTR</option>
                     <option value="cfb">CFB</option>
                 </select>
+                
                 <button id="encryptButton">Encrypt</button>
                 <button id="copyEncryptButton">Copy Encryption</button>
+                
                 <label for="encryptOutput">Encrypted Message:</label>
                 <textarea id="encryptOutput" rows="5" readonly></textarea>
             </div>
@@ -38,11 +42,13 @@
                 <h2>Decryption</h2>
                 <label for="decryptInput">Message to Decrypt:</label>
                 <textarea id="decryptInput" rows="5" placeholder="Enter encrypted text..."></textarea>
+                
                 <label for="decryptKey">Decryption Key:</label>
-                <textarea id="decryptKey" rows="6" placeholder="Enter decryption key..."></textarea>
+                <textarea id="decryptKey" rows="4" placeholder="Enter decryption key..."></textarea>
                 <div class="key-buttons">
                     <button id="copyPrivateKey">Copy Private Key</button>
                 </div>
+                
                 <label for="decryptMode">Mode:</label>
                 <select id="decryptMode">
                     <option value="ecb">ECB</option>
@@ -50,8 +56,10 @@
                     <option value="ctr">CTR</option>
                     <option value="cfb">CFB</option>
                 </select>
+                
                 <button id="decryptButton">Decrypt</button>
                 <button id="copyDecryptButton">Copy Decryption</button>
+                
                 <label for="decryptOutput">Decrypted Message:</label>
                 <textarea id="decryptOutput" rows="5" readonly></textarea>
             </div>
@@ -66,6 +74,11 @@
                 <option value="OTP">OTP</option>
                 <option value="RSA">RSA</option>
             </select>
+            <button id="importKeysButton" style="display: none; margin-top: 10px;">Import RSA Keys</button>
+            <input type="file" id="privateKeyFile" accept=".pem" style="display: none;">
+            <input type="file" id="publicKeyFile" accept=".pem" style="display: none;">
+        </div>
+        
         <div id="rsaWarning" style="display: none; color: red; margin-top: 10px; text-align: center;">
             Warning: Never share your private key! Keep it secure.
         </div>

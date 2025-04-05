@@ -6,14 +6,13 @@ const path = require('path');
 const app = express();
 app.use(cors());
 app.use(express.json());
-
-// Serve static files (HTML, CSS, JS)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Encryption endpoint
 app.post('/encrypt', (req, res) => {
     const { text, key, algorithm, mode } = req.body;
     let encrypted;
+    
     try {
         if (algorithm === 'AES') {
             encrypted = aesEncrypt(text, key, mode);
@@ -26,9 +25,14 @@ app.post('/encrypt', (req, res) => {
             encrypted = otpEncrypt(text, randomKey);
             res.json({ encrypted, key: randomKey });
         } else if (algorithm === 'RSA') {
-            const { publicKey, privateKey } = generateRSAKeys();
-            encrypted = rsaEncrypt(text, publicKey);
-            res.json({ encrypted, publicKey, privateKey });
+            if (key && isValidKey(key, 'PUBLIC')) {
+                encrypted = rsaEncrypt(text, key);
+                res.json({ encrypted });
+            } else {
+                const { publicKey, privateKey } = generateRSAKeys();
+                encrypted = rsaEncrypt(text, publicKey);
+                res.json({ encrypted, publicKey, privateKey });
+            }
         } else {
             throw new Error('Unsupported algorithm');
         }
@@ -41,11 +45,8 @@ app.post('/encrypt', (req, res) => {
 app.post('/decrypt', (req, res) => {
     const { text, key, algorithm, mode, iv, encryptionMode } = req.body;
     let decrypted;
+    
     try {
-        if (mode !== encryptionMode && algorithm !== 'RSA') {
-            throw new Error('Decryption mode must match the encryption mode.');
-        }
-
         if (algorithm === 'AES') {
             decrypted = aesDecrypt(text, key, mode, iv);
         } else if (algorithm === '3DES') {
@@ -122,52 +123,38 @@ function otpDecrypt(text, key) {
     return decrypted;
 }
 
-// RSA functions
+// RSA Functions
 function generateRSAKeys() {
     const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
         modulusLength: 2048,
-        publicKeyEncoding: {
-            type: 'spki',
-            format: 'pem'
-        },
-        privateKeyEncoding: {
-            type: 'pkcs8',
-            format: 'pem'
-        }
+        publicKeyEncoding: { type: 'spki', format: 'pem' },
+        privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
     });
     return { publicKey, privateKey };
 }
 
 function rsaEncrypt(text, publicKey) {
     const buffer = Buffer.from(text, 'utf8');
-    const encrypted = crypto.publicEncrypt({
+    return crypto.publicEncrypt({
         key: publicKey,
         padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
         oaepHash: 'sha256'
-    }, buffer);
-    return encrypted.toString('base64');
+    }, buffer).toString('base64');
 }
 
 function rsaDecrypt(text, privateKey) {
-    try {
-        // Ensure the private key is properly formatted
-        if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
-            privateKey = `-----BEGIN PRIVATE KEY-----\n${privateKey}\n-----END PRIVATE KEY-----`;
-        }
-
-        const buffer = Buffer.from(text, 'base64');
-        const decrypted = crypto.privateDecrypt({
-            key: privateKey,
-            padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
-            oaepHash: 'sha256'
-        }, buffer);
-        return decrypted.toString('utf8');
-    } catch (error) {
-        console.error('RSA Decryption Error:', error);
-        throw new Error('Failed to decrypt. Make sure you\'re using the correct private key.');
-    }
+    const buffer = Buffer.from(text, 'base64');
+    return crypto.privateDecrypt({
+        key: privateKey,
+        padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+        oaepHash: 'sha256'
+    }, buffer).toString('utf8');
 }
 
+function isValidKey(key, type) {
+    return key.includes(`-----BEGIN ${type} KEY-----`) && 
+           key.includes(`-----END ${type} KEY-----`);
+}
 // Generate random key for OTP
 function generateRandomKey(length) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -185,7 +172,7 @@ function fixKeyLength(key, length) {
 }
 
 // Start the server
-const PORT = 3000;
+const PORT = 3001;
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
