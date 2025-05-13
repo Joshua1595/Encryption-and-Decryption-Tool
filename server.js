@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const crypto = require('crypto');
 const path = require('path');
+const https = require('https');
+const fs = require('fs');
 
 const app = express();
 app.use(cors());
@@ -171,8 +173,14 @@ function fixKeyLength(key, length) {
     return key.substring(0, length);
 }
 
-// Start the server
-const PORT = 3001;
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+// HTTPS server configuration
+const options = {
+  key: fs.readFileSync('key.pem'),
+  cert: fs.readFileSync('cert.cer'), // Changed from cert.pem to cert.cer
+  // passphrase: 'yourpassword', // Uncomment if your key is encrypted
+  // ca: fs.readFileSync('ca.pem'), // Optional, if you have a CA chain
+};
+
+https.createServer(options, app).listen(8443, () => {
+  console.log('HTTPS  https://localhost:8443 ');
 });
