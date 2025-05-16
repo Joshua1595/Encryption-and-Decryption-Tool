@@ -4,11 +4,12 @@ const crypto = require('crypto');
 const path = require('path');
 const https = require('https');
 const fs = require('fs');
+const keystorePath = path.join(__dirname, 'keystore.p12');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Encryption endpoint
 app.post('/encrypt', (req, res) => {
@@ -175,10 +176,10 @@ function fixKeyLength(key, length) {
 
 // HTTPS server configuration
 const options = {
-  key: fs.readFileSync('key.pem'),
-  cert: fs.readFileSync('cert.cer'), // Changed from cert.pem to cert.cer
-  // passphrase: 'yourpassword', // Uncomment if your key is encrypted
-  // ca: fs.readFileSync('ca.pem'), // Optional, if you have a CA chain
+  //key: fs.readFileSync('key.pem'),
+  //cert: fs.readFileSync('cert.cer')
+ key: fs.readFileSync(path.join(__dirname, "key.pem")),
+ cert: fs.readFileSync(path.join(__dirname, "cert.crt")),
 };
 
 https.createServer(options, app).listen(8443, () => {

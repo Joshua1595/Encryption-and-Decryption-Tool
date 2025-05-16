@@ -176,7 +176,7 @@ async function handleEncryption() {
         btn.textContent = 'Encrypting...';
 
         // API Call
-        const response = await fetch('/encrypt', {
+        const response = await fetch('https://localhost:8443/encrypt', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text, key, algorithm, mode })
@@ -232,7 +232,7 @@ async function handleDecryption() {
         btn.textContent = 'Decrypting...';
 
         // API Call
-        const response = await fetch('/decrypt', {
+        const response = await fetch('https://localhost:8443/decrypt', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
